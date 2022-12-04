@@ -2,7 +2,7 @@
 
 Are you tired of copying and pasting data from the browser into a file every single day during the month of December? Well, do I have a CLI for you.
 
-## Setup
+## Setup
 
 In order to install this command globally on your machine please run the following command.
 
