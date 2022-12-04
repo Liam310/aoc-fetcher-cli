@@ -1,4 +1,9 @@
-const { fetchRawAdventData } = require('../utils');
+const utils = require('../utils');
+const { readFile, unlink } = require('fs/promises');
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('fetchRawAdventData', () => {
   const VALID_DAY = 1;
@@ -10,6 +15,8 @@ describe('fetchRawAdventData', () => {
   const INVALID_AUTH_HEADERS = { cookie: 'no-good' };
   const FETCH_ERROR_AUTH_MSG = 'Puzzle inputs differ by user.';
   const CUSTOM_AUTH_ERROR = 'Invalid authorisation';
+
+  const { fetchRawAdventData } = utils;
 
   global.fetch = jest.fn((url, { headers }) => {
     // what a faff
@@ -28,10 +35,6 @@ describe('fetchRawAdventData', () => {
         status: validUrl ? 200 : 404
       });
     });
-  });
-
-  beforeEach(() => {
-    fetch.mockClear();
   });
 
   test('invokes fetch with the correct URL and auth headers', async () => {
@@ -53,5 +56,44 @@ describe('fetchRawAdventData', () => {
     await expect(
       fetchRawAdventData(VALID_DAY, INVALID_AUTH_HEADERS)
     ).rejects.toEqual(CUSTOM_AUTH_ERROR);
+  });
+});
+
+describe('writeAndLog', () => {
+  const { writeAndLog } = utils;
+
+  const FAKE_DATA = 'some\ndata\nhere';
+  const FILE_PATH = './__tests__/success.txt';
+  const AUTH_HEADERS = { cookie: 'fake-cookie' };
+  const DAY = 1;
+  const SUCCESS_MSG = `Data written to ${FILE_PATH}`;
+  const ERROR_MSG = '404 - not found';
+
+  const mockFetchData = jest.spyOn(utils, 'fetchRawAdventData');
+
+  test('writes fetched data to file', async () => {
+    mockFetchData.mockResolvedValue(FAKE_DATA);
+
+    await writeAndLog(FILE_PATH, DAY, AUTH_HEADERS);
+    const fileContents = await readFile(FILE_PATH, 'utf-8');
+    expect(fileContents).toBe(FAKE_DATA);
+    await unlink(FILE_PATH);
+  });
+  test('logs a success message once data written', async () => {
+    jest.spyOn(console, 'log');
+    mockFetchData.mockResolvedValue(FAKE_DATA);
+
+    await writeAndLog(FILE_PATH, DAY, AUTH_HEADERS);
+    expect(console.log).toHaveBeenCalledWith(SUCCESS_MSG);
+    await unlink(FILE_PATH);
+  });
+  test('logs an error message if error occurs in fetching', async () => {
+    jest.spyOn(console, 'log');
+    mockFetchData.mockRejectedValue(ERROR_MSG);
+
+    await writeAndLog(FILE_PATH, DAY, AUTH_HEADERS);
+    expect(console.log).toHaveBeenCalledWith(
+      `Something went wrong: ${ERROR_MSG}`
+    );
   });
 });
