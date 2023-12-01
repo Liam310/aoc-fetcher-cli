@@ -3,6 +3,6 @@
 const { fetchRawAdventData, writeAndLog } = require('../utils');
 const authHeaders = require('../auth.json');
 
-const [, , day, relativeFilePath] = process.argv;
+const [, , year, day, relativeFilePath] = process.argv;
 
-writeAndLog(relativeFilePath, day, authHeaders);
+writeAndLog(relativeFilePath, year, day, authHeaders);

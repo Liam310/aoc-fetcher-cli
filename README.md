@@ -28,10 +28,10 @@ Now you're good to go! **Note**: your cookie may change year-to-year, but that i
 
 ## Using the command
 
-The command will now be executable as `fetch-advent` and will accept two arguments: the day in December (integer) and a filename. An example usage would look like:
+The command will now be executable as `fetch-advent` and will accept **three** arguments: the year (integer), the day in December (integer) and a filepath. An example usage would look like:
 
 ```
-fetch-advent 4 some-data.txt
+fetch-advent 2021 4 some-data.txt
 ```
 
 ## Tests
